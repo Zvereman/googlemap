@@ -23,8 +23,6 @@ private Q_SLOTS:
 
 private:
     QNetworkReply *m_reply;
-signals:
-    void errorOccurred();
 };
 
 QT_END_NAMESPACE

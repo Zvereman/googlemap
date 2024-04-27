@@ -36,7 +36,7 @@ QGeoRouteReply* QGeoRoutingManagerEngineGooglemaps::calculateRoute(const QGeoRou
 
     if (m_apiKey.isEmpty()) {
         QGeoRouteReply *reply = new QGeoRouteReply(QGeoRouteReply::UnsupportedOptionError, "Set googlemaps.route.apikey with google maps application key, supporting directions", this);
-        //emit errorOccurred(reply, reply->error(), reply->errorString());
+        emit errorOccurred(reply, reply->error(), reply->errorString());
         return reply;
     }
 
@@ -44,7 +44,7 @@ QGeoRouteReply* QGeoRoutingManagerEngineGooglemaps::calculateRoute(const QGeoRou
     QUrlQuery query;
     QStringList waypoints;
 
-    foreach (const QGeoCoordinate &c, request.waypoints()) {
+    for (const QGeoCoordinate &c : request.waypoints()) {
         QString scoord = QString::number(c.latitude()) + QLatin1Char(',') + QString::number(c.longitude());
         if (c == request.waypoints().first())
             query.addQueryItem(QStringLiteral("origin"), scoord);
@@ -70,7 +70,7 @@ QGeoRouteReply* QGeoRoutingManagerEngineGooglemaps::calculateRoute(const QGeoRou
         query.addQueryItem(QStringLiteral("alternatives"), QStringLiteral("true"));
 
     QStringList avoidList;
-    foreach (QGeoRouteRequest::FeatureType routeFeature, request.featureTypes()) {
+    for (QGeoRouteRequest::FeatureType routeFeature : request.featureTypes()) {
         QGeoRouteRequest::FeatureWeight weigth = request.featureWeight(routeFeature);
         if (weigth == QGeoRouteRequest::AvoidFeatureWeight
                 || weigth == QGeoRouteRequest::DisallowFeatureWeight) {
@@ -125,6 +125,6 @@ void QGeoRoutingManagerEngineGooglemaps::replyError(QGeoRouteReply::Error errorC
                                              const QString &errorString)
 {
     QGeoRouteReply *reply = qobject_cast<QGeoRouteReply *>(sender());
-//    if (reply)
-        //emit errorOccurred(reply, errorCode, errorString);
+    if (reply)
+        emit errorOccurred(reply, errorCode, errorString);
 }

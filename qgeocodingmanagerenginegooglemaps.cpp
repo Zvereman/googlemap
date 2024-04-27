@@ -84,7 +84,7 @@ QGeoCodeReply *QGeoCodingManagerEngineGooglemaps::geocode(const QString &address
     QGeoCodeReplyGooglemaps *geocodeReply = new QGeoCodeReplyGooglemaps(reply, this);
 
     connect(geocodeReply, &QGeoCodeReplyGooglemaps::finished, this, &QGeoCodingManagerEngineGooglemaps::replyFinished);
-    //connect(geocodeReply, &QGeoCodeReplyGooglemaps::errorOccurred, this, &QGeoCodingManagerEngineGooglemaps::replyError);
+    connect(geocodeReply, &QGeoCodeReplyGooglemaps::errorOccurred, this, &QGeoCodingManagerEngineGooglemaps::replyError);
 
     return geocodeReply;
 }
@@ -110,7 +110,7 @@ QGeoCodeReply *QGeoCodingManagerEngineGooglemaps::reverseGeocode(const QGeoCoord
     QGeoCodeReplyGooglemaps *geocodeReply = new QGeoCodeReplyGooglemaps(reply, this);
 
     connect(geocodeReply, &QGeoCodeReplyGooglemaps::finished, this, &QGeoCodingManagerEngineGooglemaps::replyFinished);
-    //connect(geocodeReply, &QGeoCodeReplyGooglemaps::errorOccurred, this, &QGeoCodingManagerEngineGooglemaps::replyError);
+    connect(geocodeReply, &QGeoCodeReplyGooglemaps::errorOccurred, this, &QGeoCodingManagerEngineGooglemaps::replyError);
 
     return geocodeReply;
 }
@@ -125,6 +125,6 @@ void QGeoCodingManagerEngineGooglemaps::replyFinished()
 void QGeoCodingManagerEngineGooglemaps::replyError(QGeoCodeReply::Error errorCode, const QString &errorString)
 {
     QGeoCodeReply *reply = qobject_cast<QGeoCodeReply *>(sender());
-//    if (reply)
-        //emit errorOccurred(reply, errorCode, errorString);
+    if (reply)
+        emit errorOccurred(reply, errorCode, errorString);
 }

@@ -42,7 +42,7 @@ void QPlaceSearchReplyGooglemaps::abort()
 void QPlaceSearchReplyGooglemaps::setError(QPlaceReply::Error errorCode, const QString &errorString)
 {
     QPlaceReply::setError(errorCode, errorString);
-    //emit errorOccurred(errorCode, errorString);
+    emit errorOccurred(errorCode, errorString);
     setFinished(true);
     emit finished();
 }
@@ -167,7 +167,7 @@ QPlaceResult QPlaceSearchReplyGooglemaps::parsePlaceResult(const QJsonObject &it
     QGeoLocation location;
     location.setCoordinate(coordinate);
     location.setAddress(address);
-//    location.setBoundingShape(parseBoundingBox(item.value(QStringLiteral("boundingbox")).toArray()));
+    location.setBoundingShape(parseBoundingBox(item.value(QStringLiteral("boundingbox")).toArray()));
 
     place.setLocation(location);
 

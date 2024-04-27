@@ -18,5 +18,5 @@ void QPlaceCategoriesReplyGooglemaps::emitFinished()
 void QPlaceCategoriesReplyGooglemaps::setError(QPlaceReply::Error errorCode, const QString &errorString)
 {
     QPlaceReply::setError(errorCode, errorString);
-    //emit errorOccurred(errorCode, errorString);
+    emit errorOccurred(errorCode, errorString);
 }
