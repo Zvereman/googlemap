@@ -2,11 +2,6 @@ TEMPLATE = lib
 CONFIG += plugin
 CONFIG += relative_qt_rpath  # Qt's plugins should be relocatable
 
-
-SRCMOC = .moc
-MOC_DIR = .moc
-OBJECTS_DIR = .obj
-
 android {
 TARGET = plugins_geoservices_qtgeoservices_googlemaps
 } else {

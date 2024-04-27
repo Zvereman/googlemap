@@ -58,26 +58,80 @@ QGeoTiledMappingManagerEngineGooglemaps::QGeoTiledMappingManagerEngineGooglemaps
 #endif
     setSupportedMapTypes(types);
 
+    const QByteArray pluginName = "googlemaps";
+    if (parameters.contains(QStringLiteral("googlemaps.maps.cache.directory"))) {
+        m_cacheDirectory = parameters.value(QStringLiteral("googlemaps.maps.cache.directory")).toString();
+    } else {
+        // managerName() is not yet set, we have to hardcode the plugin name below
+        m_cacheDirectory = QAbstractGeoTileCache::baseLocationCacheDirectory() + QLatin1String(pluginName);
+    }
+
+    /* TILE CACHE */
+    //if (parameters.contains(QStringLiteral("googlemaps.maps.offline.directory")))
+    //    m_offlineDirectory = parameters.value(QStringLiteral("googlemaps.maps.offline.directory")).toString();
+    QGeoFileTileCache *tileCache = new QGeoFileTileCache(m_cacheDirectory);
+
+    /*
+     * Disk cache setup -- defaults to ByteSize (old behavior)
+     */
+    if (parameters.contains(QStringLiteral("googlemaps.maps.cache.disk.cost_strategy"))) {
+        QString cacheStrategy = parameters.value(QStringLiteral("googlemaps.maps.cache.disk.cost_strategy")).toString().toLower();
+        if (cacheStrategy == QLatin1String("bytesize"))
+            tileCache->setCostStrategyDisk(QGeoFileTileCache::ByteSize);
+        else
+            tileCache->setCostStrategyDisk(QGeoFileTileCache::Unitary);
+    } else {
+        tileCache->setCostStrategyDisk(QGeoFileTileCache::ByteSize);
+    }
+    if (parameters.contains(QStringLiteral("googlemaps.maps.cache.disk.size"))) {
+        bool ok = false;
+        int cacheSize = parameters.value(QStringLiteral("googlemaps.maps.cache.disk.size")).toString().toInt(&ok);
+        if (ok)
+            tileCache->setMaxDiskUsage(cacheSize);
+    }
+
+    /*
+     * Memory cache setup -- defaults to ByteSize (old behavior)
+     */
+    if (parameters.contains(QStringLiteral("googlemaps.maps.cache.memory.cost_strategy"))) {
+        QString cacheStrategy = parameters.value(QStringLiteral("googlemaps.maps.cache.memory.cost_strategy")).toString().toLower();
+        if (cacheStrategy == QLatin1String("bytesize"))
+            tileCache->setCostStrategyMemory(QGeoFileTileCache::ByteSize);
+        else
+            tileCache->setCostStrategyMemory(QGeoFileTileCache::Unitary);
+    } else {
+        tileCache->setCostStrategyMemory(QGeoFileTileCache::ByteSize);
+    }
+    if (parameters.contains(QStringLiteral("googlemaps.maps.cache.memory.size"))) {
+        bool ok = false;
+        int cacheSize = parameters.value(QStringLiteral("googlemaps.maps.cache.memory.size")).toString().toInt(&ok);
+        if (ok)
+            tileCache->setMaxMemoryUsage(cacheSize);
+    }
+
+    /*
+     * Texture cache setup -- defaults to ByteSize (old behavior)
+     */
+    if (parameters.contains(QStringLiteral("googlemaps.maps.cache.texture.cost_strategy"))) {
+        QString cacheStrategy = parameters.value(QStringLiteral("googlemaps.maps.cache.texture.cost_strategy")).toString().toLower();
+        if (cacheStrategy == QLatin1String("bytesize"))
+            tileCache->setCostStrategyTexture(QGeoFileTileCache::ByteSize);
+        else
+            tileCache->setCostStrategyTexture(QGeoFileTileCache::Unitary);
+    } else {
+        tileCache->setCostStrategyTexture(QGeoFileTileCache::ByteSize);
+    }
+    if (parameters.contains(QStringLiteral("googlemaps.maps.cache.texture.size"))) {
+        bool ok = false;
+        int cacheSize = parameters.value(QStringLiteral("googlemaps.maps.cache.texture.size")).toString().toInt(&ok);
+        if (ok)
+            tileCache->setExtraTextureUsage(cacheSize);
+    }
+
+    setTileCache(tileCache);
+
     QGeoTileFetcherGooglemaps *fetcher = new QGeoTileFetcherGooglemaps(parameters, this, tileSize());
     setTileFetcher(fetcher);
-
-    if (parameters.contains(QStringLiteral("googlemaps.cachefolder")))
-        m_cacheDirectory = parameters.value(QStringLiteral("googlemaps.cachefolder")).toString();
-
-    const int szCache = 100 * 1024 * 1024;
-#if QT_VERSION < QT_VERSION_CHECK(5,6,0)
-    if (m_cacheDirectory.isEmpty())
-        m_cacheDirectory = QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation) + QLatin1String("googlemaps");
-    QGeoTileCache *tileCache = createTileCacheWithDir(m_cacheDirectory);
-    if (tileCache)
-        tileCache->setMaxDiskUsage(szCache);
-#else
-    if (m_cacheDirectory.isEmpty())
-        m_cacheDirectory = QAbstractGeoTileCache::baseCacheDirectory() + QLatin1String("googlemaps");
-    QAbstractGeoTileCache *tileCache = new QGeoFileTileCache(m_cacheDirectory);
-    tileCache->setMaxDiskUsage(szCache);
-    setTileCache(tileCache);
-#endif
 
     *error = QGeoServiceProvider::NoError;
     errorString->clear();
